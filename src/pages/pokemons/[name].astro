@@ -2,8 +2,11 @@
 import type { GetStaticPaths } from 'astro';
 import type { PokemonListResponse } from '@interfaces/pokemon-list.response';
 
+import { Icon } from 'astro-icon/components';
+
 import PokemonCard from '@components/pokemons/PokemonCard.astro';
 import MainLayout from '@layouts/MainLayout.astro';
+import Title from '@components/shared/Title.astro';
 
 export const getStaticPaths = (async () => {
   const resp = await fetch('https://pokeapi.co/api/v2/pokemon?limit=151');
@@ -40,9 +43,17 @@ const imageSrc = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprit
   image={imageSrc}
 >
   <section class="mt-10 mx-10 flex flex-col justify-center items-center">
-    <div>
-      <a href="/">Regresar</a>
-      <h1 class="text-5xl capitalize">{name}</h1>
+    <div class="flex flex-row">
+      <div>
+        <!-- <a href="/">Regresar</a> -->
+        <button onclick="history.back()" class="text-blue-500">Regresar</button>
+        <Title>{name}</Title>
+      </div>
+
+      <button id="btn-favorite" class="ml-4" data-name={name} data-id={id}>
+        <Icon name="heart-outline" size={50} />
+        <Icon class="hidden" name="heart-full" size={50} />
+      </button>
     </div>
 
     <PokemonCard name={name} url={url} isBig />
@@ -54,8 +65,54 @@ const imageSrc = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprit
   </section>
 </MainLayout>
 
+<script>
+  interface FavoritePokemon {
+    name: string;
+    id: number;
+  }
+
+  // document.addEventListener('astro:before-preparation', () => {
+  //   console.log('astro:before-preparation');
+  // });
+
+  // document.addEventListener('astro:after-preparation', () => {
+  //   console.log('astro:after-preparation');
+  // });
+  // document.addEventListener('astro:before-swap', () => {
+  //   console.log('astro:before-swap');
+  // });
+  // document.addEventListener('astro:after-swap', () => {
+  //   console.log('astro:after-swap');
+  // });
+
+  // document.addEventListener('astro:page-load', () => {
+  //   console.log('hola');
+  // });
+
+  const handlePageLoad = () => {
+    const btnFavorite = document.querySelector(
+      '#btn-favorite'
+    ) as HTMLButtonElement;
+
+    if (!btnFavorite) return;
+
+    const name = btnFavorite.dataset.name;
+    const id = btnFavorite.dataset.id;
+
+    btnFavorite.addEventListener('click', () => {
+      console.log({ name, id });
+    });
+  };
+
+  document.addEventListener('astro:page-load', handlePageLoad);
+</script>
+
 <style>
   a {
     @apply hover:underline text-blue-500;
+  }
+
+  #btn-favorite {
+    @apply hover:animate-pulse;
   }
 </style>
