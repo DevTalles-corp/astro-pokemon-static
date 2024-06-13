@@ -51,8 +51,8 @@ const imageSrc = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprit
       </div>
 
       <button id="btn-favorite" class="ml-4" data-name={name} data-id={id}>
-        <Icon name="heart-outline" size={50} />
-        <Icon class="hidden" name="heart-full" size={50} />
+        <Icon data-outline name="heart-outline" size={50} />
+        <Icon data-full class="hidden" name="heart-full" size={50} />
       </button>
     </div>
 
@@ -90,17 +90,54 @@ const imageSrc = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprit
   // });
 
   const handlePageLoad = () => {
+    let favoritePokemons: FavoritePokemon[] = JSON.parse(
+      localStorage.getItem('favorites') ?? '[]'
+    );
+
     const btnFavorite = document.querySelector(
       '#btn-favorite'
     ) as HTMLButtonElement;
 
     if (!btnFavorite) return;
 
-    const name = btnFavorite.dataset.name;
-    const id = btnFavorite.dataset.id;
+    const name = btnFavorite.dataset.name ?? '';
+    const id = btnFavorite.dataset.id ?? '';
+    const isFavorite = favoritePokemons.some((fav) => fav.name === name);
+
+    const heartOutline = btnFavorite.querySelector(
+      '[data-outline]'
+    ) as HTMLElement;
+
+    const heartFull = btnFavorite.querySelector('[data-full]') as HTMLElement;
+
+    // Hagan la función para mostrar o ocultar el corazón lleno
+    if (isFavorite) {
+      heartOutline.classList.add('hidden');
+      heartFull.classList.remove('hidden');
+    }
+
+    const toggleFavorite = () => {
+      const isFavorite = favoritePokemons.some((fav) => fav.name === name);
+
+      if (isFavorite) {
+        // Remover
+        favoritePokemons = favoritePokemons.filter((fav) => fav.name !== name);
+      } else {
+        // Agregar
+        favoritePokemons.push({
+          id: +id,
+          name: name,
+        });
+      }
+
+      localStorage.setItem('favorites', JSON.stringify(favoritePokemons));
+    };
 
     btnFavorite.addEventListener('click', () => {
-      console.log({ name, id });
+      heartOutline.classList.toggle('hidden');
+      heartFull.classList.toggle('hidden');
+
+      toggleFavorite();
     });
   };
 
